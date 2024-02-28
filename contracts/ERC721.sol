@@ -1,96 +1,57 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./ERC721Interface.sol";
-
-contract ERC721Token is ERC721Interface {
-    uint256 public totalTokens;
+contract ERC721 {
+    string public _name;
+    string public _symbol;
     mapping(uint256 => address) private _tokenOwners;
-    mapping(address => uint256[]) private _ownedTokens;
+    mapping(address => uint256) private _ownershipTokenCount;
+    mapping(uint256 => string) private _tokenURIs;
     mapping(uint256 => address) private _tokenApprovals;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
-    mapping(uint256 => string) private _tokenURIs;
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    function getBalanceOf(address _owner) external view override returns (uint256) {
-        return _ownedTokens[_owner].length;
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
     }
 
-    function getOwnerOf(uint256 _tokenId) external view override returns (address) {
-        return _tokenOwners[_tokenId];
+    function mint(address to, uint256 tokenId, string memory tokenURI) external {
+        require(tokenOwners[tokenId] == address(0), "Token already exists");
+        _tokenOwners[tokenId] = to;
+        _ownershipTokenCount[to]++;
+        _tokenURIs[tokenId] = tokenURI;
+        emit Transfer(address(0), to, tokenId);
     }
 
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external override {
-        transferFrom(_from, _to, _tokenId);
+    function safeTransferFrom(address from, address to, uint256 tokenId) external {
+        require(msg.sender == from || msg.sender == _tokenOwners[tokenId] || msg.sender == _tokenApprovals[tokenId], "Not approved to transfer");
+        require(to != address(0), "Transfer to the zero address");
+        require(from == _tokenOwners[tokenId], "Not the owner of the token");
+
+        _tokenOwners[tokenId] = to;
+        _ownershipTokenCount[from]--;
+        _ownershipTokenCount[to]++;
+
+        emit Transfer(from, to, tokenId);
     }
 
-    function transferFrom(address _from, address _to, uint256 _tokenId) public override {
-        require(_isApprovedOrOwner(msg.sender, _tokenId), "Transfer caller is not owner nor approved");
-        require(_from != address(0), "Transfer from the zero address");
-        require(_to != address(0), "Transfer to the zero address");
-
-        _transfer(_from, _to, _tokenId);
+    function approve(address to, uint256 tokenId) external {
+        require(msg.sender == _tokenOwners[tokenId], "Not the owner of the token");
+        _tokenApprovals[tokenId] = to;
+        emit Approval(msg.sender, to, tokenId);
     }
 
-    function approve(address _approved, uint256 _tokenId) external override {
-        address owner = ownerOf(_tokenId);
-        require(msg.sender == owner || isApprovedForAll(owner, msg.sender),
-            "Approve caller is not owner nor approved for all"
-        );
-
-        _tokenApprovals[_tokenId] = _approved;
-        emit Approval(msg.sender, _approved, _tokenId);
+    function setApprovalForAll(address operator, bool approved) external {
+        _operatorApprovals[msg.sender][operator] = approved;
+        emit ApprovalForAll(msg.sender, operator, approved);
     }
 
-    function setApprovalForAll(address _operator, bool _approved) external override {
-        _operatorApprovals[msg.sender][_operator] = _approved;
-        emit ApprovalForAll(msg.sender, _operator, _approved);
-    }
-
-    function getApproved(uint256 _tokenId) external view override returns (address) {
-        return _tokenApprovals[_tokenId];
-    }
-
-    function isApprovedForAll(address _owner, address _operator) external view override returns (bool) {
-        return _operatorApprovals[_owner][_operator];
-    }
-
-    function mint(address _to, uint256 _tokenId) external override {
-        require(_to != address(0), "Mint to the zero address");
-        require(_tokenOwners[_tokenId] == address(0), "Token already minted");
-
-        _tokenOwners[_tokenId] = _to;
-        _ownedTokens[_to].push(_tokenId);
-        totalTokens++;
-
-        emit Transfer(address(0), _to, _tokenId);
-    }
-
-    function _transfer(address _from, address _to, uint256 _tokenId) internal {
-        require(ownerOf(_tokenId) == _from, "Transfer of token that is not own");
-        require(_to != address(0), "Transfer to the zero address");
-
-        _tokenApprovals[_tokenId] = address(0);
-
-        uint256[] storage fromTokens = _ownedTokens[_from];
-        for (uint256 i = 0; i < fromTokens.length; i++) {
-            if (fromTokens[i] == _tokenId) {
-                fromTokens[i] = fromTokens[fromTokens.length - 1];
-                fromTokens.pop();
-                break;
-            }
-        }
-
-        _tokenOwners[_tokenId] = _to;
-        _ownedTokens[_to].push(_tokenId);
-
-        emit Transfer(_from, _to, _tokenId);
-    }
-
-    function _isApprovedOrOwner(address _spender, uint256 _tokenId) internal view returns (bool) {
-        address owner = ownerOf(_tokenId);
-        return (_spender == owner || _spender == getApproved(_tokenId) || isApprovedForAll(owner, _spender));
+    function tokenURI(uint256 tokenId) external view returns (string memory) {
+        require(_tokenOwners[tokenId] != address(0), "Token does not exist");
+        return _tokenURIs[tokenId];
     }
 }

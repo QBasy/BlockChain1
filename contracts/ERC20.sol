@@ -1,72 +1,46 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./ERC20Interface.sol";
-
-
-contract ERC20Token is ERC20Interface {
+contract ERC20 {
     string private _name;
     string private _symbol;
     uint256 private _totalSupply;
-    uint256 private _decimal;
-    mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) private _allowances;
+    mapping(address => uint256) public balances;
 
-    constructor(string memory name_, string memory symbol_, uint256 totalSupply_) {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Mint(address indexed account, uint256 amount);
+    event BlockRewardSet(uint256 amount);
+    event ContractDestroyed(address indexed recipient, uint256 amount);
+
+    constructor(string memory name_, string memory symbol_, uint256 totalSupply_){
         _name = name_;
         _symbol = symbol_;
         _totalSupply = totalSupply_;
-        _balances[msg.sender] = totalSupply_;
-        _decimal = 18;
     }
 
-    function getName() external view override returns (string memory) {
-        return _name;
+    function _mint(address account, uint256 amount) internal {
+        require(account != address(0), "Mint to the 0 address");
+        balances[account] += amount;
+        _totalSupply += amount;
+        emit Mint(account, amount);
+        emit Transfer(address(0), account, amount);
     }
 
-    function getSymbol() external view override returns (string memory) {
-        return _symbol;
+    function _mintMinerReward() internal {
+        _mint(block.coinbase, 1);
     }
 
-    function getTotalSupply() external view override returns (uint256) {
-        return _totalSupply;
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
+
     }
 
-    function getBalanceOf(address account) external view override returns (uint256) {
-        return _balances[account];
+    function setBlockReward(uint256 amount) external {
+        emit BlockRewardSet(amount);
     }
 
-    function transfer(address recipient, uint256 amount) external override returns (bool) {
-        require(recipient != address(0), "Transfer to the 0 address");
-        require(_balances[msg.sender] >= amount, "Transfer amount more than in balance");
-
-        _balances[msg.sender] -= amount;
-        _balances[recipient] += amount;
-
-        emit Transfer(msg.sender, recipient, amount);
-        return true;
-    }
-
-    function allowance(address owner, address spender) external view override returns (uint256) {
-        return _allowances[owner][spender];
-    }
-
-    function approve(address spender, uint256 amount) external override returns (bool) {
-        _allowances[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
-        return true;
-    }
-
-    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
-        require(sender != address(0), "transfer from the 0 address");
-        require(recipient != address(0), "transfer to the 0 address");
-        require(_balances[sender] >= amount, "transfer amount more than in balance");
-        require(_allowances[sender][msg.sender] >= amount, "transfer amount more than allowed");
-
-        _balances[sender] -= amount;
-        _balances[recipient] += amount;
-        _allowances[sender][msg.sender] -= amount;
-
-        emit Transfer(sender, recipient, amount);
-        return true;
+    function destroy(address recipient) external {
+        require(msg.sender == recipient, "You Can't destroy this contract!");
+        emit ContractDestroyed(recipient, balances[msg.sender]);
+        payable(recipient).transfer(address(this).balance);
     }
 }
