@@ -151,10 +151,9 @@ button {
 }
 
 button:hover {
-    background-color: #002639; /* Darken the color on hover */
+    background-color: #002639;
 }
 
-/* Add styles for notification */
 .notification {
     display: none;
     position: absolute;
@@ -169,13 +168,11 @@ button:hover {
     z-index: 999;
 }
 
-/* Add keyframes for confetti animation */
 @keyframes confetti {
     0% { transform: translateY(0) rotateZ(0); }
     100% { transform: translateY(1000px) rotateZ(1800deg); }
 }
 
-/* Add shake animation for submit button */
 @keyframes shake {
     0% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -183,7 +180,6 @@ button:hover {
     100% { transform: translateX(0); }
 }
 
-/* Apply shake animation on hover */
 #submitVoteButton:hover {
     animation: shake 0.3s ease;
 }
