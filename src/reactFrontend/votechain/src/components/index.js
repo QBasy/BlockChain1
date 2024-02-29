@@ -1,0 +1,59 @@
+// Index.js
+import React from 'react';
+import './css/style.css';
+import ReactDOM from "react-dom/client";
+import App from "../App";
+
+const Index = () => {
+  return (
+    <div className="container">
+      <header>
+        <h1>Welcome to GovVoteChain</h1>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/voting">Vote Now</a></li>
+            <li><a href="/startvoting">Start Voting Event</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section>
+          <h2>Revolutionizing Government Elections</h2>
+          <p>GovVoteChain leverages blockchain technology to provide a secure, transparent, and tamper-proof voting system.</p>
+        </section>
+        <section>
+          <h2>About GovVoteChain</h2>
+          <p>GovVoteChain is a cutting-edge decentralized application designed to transform government elections by enhancing security and ensuring unparalleled transparency. By leveraging the power of blockchain technology, GovVoteChain offers a solution that is resistant to tampering, providing an auditable and trustworthy voting system.</p>
+        </section>
+        <section>
+          <h2>The Need for GovVoteChain</h2>
+          <p>Challenges such as vote manipulation and lack of transparency have long plagued traditional voting systems. GovVoteChain addresses these critical issues head-on, offering a decentralized platform that guarantees the integrity and transparency of electoral processes.</p>
+        </section>
+        <section>
+          <h2>Core Features</h2>
+          <ul>
+            <li><strong>Blockchain Security:</strong> Ensures the voting process's integrity through immutable record-keeping.</li>
+            <li><strong>Transparent Ledger:</strong> Provides a publicly accessible ledger for real-time vote verification.</li>
+            <li><strong>Decentralized Identity Verification:</strong> Utilizes secure, decentralized solutions to prevent fraud and impersonation.</li>
+            <li><strong>Smart Contracts for Governance:</strong> Employs smart contracts to automate and enforce election rules fairly.</li>
+            <li><strong>Anonymity and Privacy:</strong> Protects voter privacy with advanced cryptographic techniques while maintaining vote integrity.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Who Can Benefit?</h2>
+          <p>GovVoteChain serves a wide array of users, from voters seeking a transparent and secure voting experience, to government authorities overseeing elections, blockchain enthusiasts interested in the application of technology in democracy, and activists advocating for fair elections.</p>
+        </section>
+        <section>
+          <h2>Why GovVoteChain?</h2>
+          <p>By integrating blockchain technology into the electoral process, GovVoteChain introduces a new level of security and transparency that addresses existing shortcomings. It stands as a testament to how technology can enhance and protect democratic processes.</p>
+        </section>
+      </main>
+      <footer>
+        <p>© 2024 GovVoteChain. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+}
+
+export default Index;

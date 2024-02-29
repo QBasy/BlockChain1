@@ -1,6 +1,8 @@
 // StartVoting.js
 import React, { useState } from 'react';
-import './style.css';
+import './css/style.css';
+import ReactDOM from "react-dom/client";
+import App from "../App";
 
 const StartVoting = () => {
   const [electionName, setElectionName] = useState('');
